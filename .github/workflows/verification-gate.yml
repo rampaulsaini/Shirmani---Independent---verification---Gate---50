@@ -14,7 +14,7 @@ permissions:
 
 concurrency:
   group: shirmani-independent-verification-gate-50
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   verify:
