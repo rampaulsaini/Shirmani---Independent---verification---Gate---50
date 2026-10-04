@@ -117,12 +117,21 @@ def verify(record: dict) -> tuple[bool, list[dict]]:
 def main() -> int:
     records = sorted(INPUT.glob("*.record.json")) if INPUT.exists() else []
     results, verified = [], 0
+    seen_record_ids: set[str] = set()
+    duplicate_ids: set[str] = set()
     for path in records:
         try:
             record = json.loads(path.read_text(encoding="utf-8"))
             ok, errors = verify(record)
         except Exception as exc:
             record, ok, errors = {}, False, [err("INVALID_JSON", str(exc))]
+        record_id = record.get("record_id")
+        if isinstance(record_id, str) and record_id in seen_record_ids:
+            duplicate_ids.add(record_id)
+            ok = False
+            errors.append(err("DUPLICATE_RECORD_ID", f"record_id appears more than once: {record_id}"))
+        elif isinstance(record_id, str):
+            seen_record_ids.add(record_id)
         status = "VERIFIED" if ok else "REJECTED"
         if ok:
             verified += 1
@@ -130,7 +139,12 @@ def main() -> int:
 
     total = len(records)
     rate = round(verified / total * 100, 2) if total else 0.0
-    gate_status = "PASS" if total > 0 and verified == total else ("NO_RECORDS" if total == 0 else "NOT_VERIFIED")
+    if verified > 50:
+        gate_status = "TARGET_EXCEEDED"
+    elif duplicate_ids:
+        gate_status = "DUPLICATE_RECORD_IDS"
+    else:
+        gate_status = "PASS" if total > 0 and verified == total else ("NO_RECORDS" if total == 0 else "NOT_VERIFIED")
     previous = {}
     previous_path = REPORTS / "verification-report.json"
     if previous_path.exists():
@@ -152,6 +166,8 @@ def main() -> int:
         "verifier_version":"2.1.0",
         "policy":"fail-closed",
         "target_verified_records":50,
+        "target_policy":"fail-closed; verified_records must not exceed target",
+        "duplicate_record_ids":sorted(duplicate_ids),
         "independence_note":"Distinct IDs are enforced. A separate-process audit context is mandatory, but technical separation alone is not proof of organizational independence.",
         "total_records":total,
         "verified_records":verified,
