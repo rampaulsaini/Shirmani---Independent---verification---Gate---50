@@ -1,0 +1,69 @@
+name: SHIRMANI Upstream Independent-Verification Intake
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shirmani-upstream-independent-verification-intake
+  cancel-in-progress: true
+
+jobs:
+  intake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout gate
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch upstream verification state
+        env:
+          UPSTREAM_RAW: https://raw.githubusercontent.com/rampaulsaini/Shirmani-Research-Institute-Shirmani-Research-Institute-/main
+        run: |
+          set -euo pipefail
+          mkdir -p incoming
+          curl --fail --silent --show-error --location "$UPSTREAM_RAW/generated/independent-verification-progress.json" -o incoming/upstream-progress.json
+          curl --fail --silent --show-error --location "$UPSTREAM_RAW/generated/VERIFICATION-PROMOTION-QC.json" -o incoming/upstream-promotion-qc.json
+          curl --fail --silent --show-error --location "$UPSTREAM_RAW/generated/independent-verification-queue.jsonl" -o incoming/upstream-queue.jsonl
+          curl --fail --silent --show-error --location "$UPSTREAM_RAW/generated/independent-verification-registry.jsonl" -o incoming/upstream-registry.jsonl
+
+      - name: Build fail-closed intake report
+        run: python scripts/build_upstream_intake_report.py
+
+      - name: Upload upstream intake evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: shirmani-upstream-independent-verification-intake-${{ github.run_id }}
+          path: |
+            incoming/upstream-progress.json
+            incoming/upstream-promotion-qc.json
+            incoming/upstream-queue.jsonl
+            incoming/upstream-registry.jsonl
+            reports/upstream-intake-report.json
+            reports/upstream-intake-summary.md
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Emit gate summary
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          d=json.load(open("reports/upstream-intake-report.json", encoding="utf-8"))
+          print("## SHIRMANI Upstream Independent-Verification Intake")
+          print(f"- Upstream authoritative target: **{d['upstream']['authoritative_target']}**")
+          print(f"- Upstream queued: **{d['upstream']['queued']}**")
+          print(f"- Upstream review slots instantiated: **{d['upstream']['review_slots']}**")
+          print(f"- Upstream independently VERIFIED: **{d['upstream']['verified']}**")
+          print(f"- Gate-50 local VERIFIED: **{d['local_gate']['verified']}**")
+          print(f"- Promotion by intake: **{d['policy']['intake_may_promote']}**")
+          print(f"- Status: **{d['status']}**")
+          PY
