@@ -39,6 +39,9 @@ jobs:
       - name: Build fail-closed intake report
         run: python scripts/build_upstream_intake_report.py
 
+      - name: Build candidate readiness audit
+        run: python scripts/build_candidate_readiness_report.py
+
       - name: Upload upstream intake evidence
         uses: actions/upload-artifact@v4
         with:
@@ -50,6 +53,8 @@ jobs:
             incoming/upstream-registry.jsonl
             reports/upstream-intake-report.json
             reports/upstream-intake-summary.md
+            reports/candidate-readiness-report.json
+            reports/candidate-readiness-summary.md
           if-no-files-found: error
           retention-days: 14
 
