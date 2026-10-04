@@ -56,7 +56,7 @@ def verify(record):
     if reproduction.get("result") != "PASS": errors.append(err("REPRODUCTION_NOT_PASS","reproduction.result must be PASS for VERIFIED status"))
     return not errors, errors
 def main():
-    records = sorted(INPUT.glob("*.json")) if INPUT.exists() else []
+    records = sorted(INPUT.glob("*.record.json")) if INPUT.exists() else []
     results, verified = [], 0
     for path in records:
         try:
