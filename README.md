@@ -111,6 +111,12 @@ This is intentional. No synthetic or self-attested records are created merely to
 
 The workflow is already configured to build the dashboard, upload the Pages artifact, and deploy it. The latest successful run confirmed the full path end-to-end.
 
+### Current upstream readiness audit
+
+The upstream intake currently reports **100,200 queued**, **10 review slots**, **4 evidence-supported instantiated records**, and **0 independently VERIFIED** records. The Gate-50 local repository remains **0 VERIFIED / 0 candidates** until complete independent review packets satisfy the gate contract.
+
+The intake workflow now also publishes a deterministic candidate-readiness audit. This audit is observational only: it does not manufacture records, promote upstream workflow success, or convert queue entries into VERIFIED status.
+
 ### Next real milestone
 
 The next meaningful progress is not adding more workflow names. It is feeding the gate real upstream candidate packets containing immutable source references, evidence hashes, reproducibility data, and a defensible independent-audit basis.
