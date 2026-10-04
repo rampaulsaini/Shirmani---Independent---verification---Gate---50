@@ -4,5 +4,7 @@
 - VERIFIED: **0**
 - Rejected: **0**
 - Verification rate: **0.0%**
+- Target: **50 VERIFIED records**
 - Gate status: **NO_RECORDS**
-- Verifier version: **2.0.0**
+- Policy: **fail-closed**
+- Verifier version: **2.1.0**

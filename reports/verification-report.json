@@ -1,9 +1,10 @@
 {
   "gate": "SHIRMANI Independent Verification Gate 50",
-  "generated_at_utc": "2026-10-04T16:30:38.099677+00:00",
-  "verifier_version": "2.0.0",
+  "generated_at_utc": "2026-10-04T16:31:10.691853+00:00",
+  "verifier_version": "2.1.0",
   "policy": "fail-closed",
-  "independence_note": "Distinct IDs are enforced; organizational independence must be supported by audit context.",
+  "target_verified_records": 50,
+  "independence_note": "Distinct IDs are enforced. A separate-process audit context is mandatory, but technical separation alone is not proof of organizational independence.",
   "total_records": 0,
   "verified_records": 0,
   "rejected_records": 0,
