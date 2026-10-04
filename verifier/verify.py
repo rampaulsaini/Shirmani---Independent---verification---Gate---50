@@ -24,6 +24,10 @@ def err(code: str, message: str) -> dict:
 def verify(record: dict) -> tuple[bool, list[dict]]:
     errors: list[dict] = []
     required = ["record_schema_version","record_id","producer_id","verifier_id","source_ref","source_hash_sha256","evidence","reproduction","audit_context","decision"]
+    allowed = set(required)
+    unknown = sorted(set(record) - allowed)
+    if unknown:
+        errors.append(err("UNKNOWN_FIELD", "unsupported top-level fields: " + ", ".join(unknown)))
     for key in required:
         if key not in record:
             errors.append(err("MISSING_FIELD", key))
