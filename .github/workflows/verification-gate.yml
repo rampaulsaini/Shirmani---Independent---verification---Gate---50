@@ -30,6 +30,16 @@ jobs:
         run: python verifier/verify.py
       - name: Validate verification report
         run: python verifier/validate_report.py
+      - name: Validate repository structure
+        run: |
+          test -f verifier/verify.py
+          test -f verifier/test_verify.py
+          test -f verifier/validate_report.py
+          test -f schemas/verification-record.schema.json
+          test -f docs/INDEPENDENT-VERIFICATION-PROTOCOL.md
+          test -f reports/verification-report.json
+          test -f reports/verification-summary.md
+
       - name: Persist verification report
         run: |
           git config user.name "github-actions[bot]"
@@ -44,10 +54,12 @@ jobs:
       - name: Build deployable site
         run: |
           rm -rf _site
-          mkdir -p _site/reports
+          mkdir -p _site/reports _site/schemas
           cp docs/index.html _site/index.html
           cp reports/verification-report.json _site/reports/verification-report.json
           cp reports/verification-summary.md _site/reports/verification-summary.md
+          cp docs/INDEPENDENT-VERIFICATION-PROTOCOL.md _site/INDEPENDENT-VERIFICATION-PROTOCOL.md
+          cp schemas/verification-record.schema.json _site/schemas/verification-record.schema.json
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
       - name: Upload Pages artifact
