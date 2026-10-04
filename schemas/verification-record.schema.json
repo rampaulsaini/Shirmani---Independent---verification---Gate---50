@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rampaulsaini.github.io/Shirmani---Independent---verification---Gate---50/schemas/verification-record.schema.json",
+  "title": "SHIRMANI Independent Verification Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["record_schema_version","record_id","producer_id","verifier_id","source_ref","source_hash_sha256","evidence","reproduction","audit_context","decision"],
+  "properties": {
+    "record_schema_version": {"const": "1.1"},
+    "record_id": {"type": "string", "minLength": 1},
+    "producer_id": {"type": "string", "minLength": 1},
+    "verifier_id": {"type": "string", "minLength": 1},
+    "source_ref": {"type": "string", "minLength": 1},
+    "source_hash_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "evidence": {"type":"array","minItems":2,"items":{"type":"object","additionalProperties":false,"required":["kind","ref","sha256"],"properties":{"kind":{"type":"string","minLength":1},"ref":{"type":"string","minLength":1},"sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"},"path":{"type":"string","minLength":1}}}},
+    "reproduction": {"type":"object","additionalProperties":false,"required":["method","environment","result"],"properties":{"method":{"type":"string","minLength":1},"environment":{"type":"string","minLength":1},"result":{"const":"PASS"}}},
+    "audit_context": {"type":"object","additionalProperties":false,"required":["reviewer_role","review_mechanism","independence_basis","separate_process"],"properties":{"reviewer_role":{"type":"string","minLength":1},"review_mechanism":{"type":"string","minLength":1},"independence_basis":{"type":"string","minLength":1},"separate_process":{"const":true}}},
+    "decision": {"const":"PASS"}
+  }
+}
