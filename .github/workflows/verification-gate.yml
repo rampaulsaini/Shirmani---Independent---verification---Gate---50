@@ -5,11 +5,16 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "*/5 * * * *"
+
 permissions:
-  contents: read
+  contents: write
+  pages: write
+  id-token: write
+
 concurrency:
   group: shirmani-independent-verification-gate-50
   cancel-in-progress: false
+
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -21,11 +26,48 @@ jobs:
       - run: python verifier/test_verify.py
       - run: python verifier/verify.py
       - run: python verifier/validate_report.py
-      - uses: actions/upload-artifact@v4
+
+      - name: Build deployable site
+        run: |
+          rm -rf _site
+          mkdir -p _site/reports
+          cp docs/index.html _site/index.html
+          cp reports/verification-report.json _site/reports/verification-report.json
+          cp reports/verification-summary.md _site/reports/verification-summary.md
+
+      - name: Persist verification report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/verification-report.json reports/verification-summary.md
+          if git diff --cached --quiet; then
+            echo "No report changes to commit."
+          else
+            git commit -m "chore: persist verification report [skip ci]"
+            git push
+          fi
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Upload audit artifact
+        uses: actions/upload-artifact@v4
         with:
           name: shirmani-verification-gate-50-report
           path: |
             reports/verification-report.json
             reports/verification-summary.md
-            reports/verification-dashboard.html
           if-no-files-found: error
+
+  deploy:
+    needs: verify
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
