@@ -20,6 +20,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Run verifier regression tests
         run: python verifier/test_verify.py
       - name: Run deterministic verification gate
