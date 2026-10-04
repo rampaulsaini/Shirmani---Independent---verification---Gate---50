@@ -24,7 +24,7 @@ report = {
     "gate": "SHIRMANI Independent Verification Gate 50",
     "status": "INTAKE_READY",
     "upstream": {
-        "authoritative_target": auth["queued"] if auth.get("authoritative_target") is None else progress["authoritative_target"],
+        "authoritative_target": progress["authoritative_target"],
         "queued": auth["queued"],
         "review_slots": inst["review_slots"],
         "evidence_supported_records": inst["evidence_supported_records"],
