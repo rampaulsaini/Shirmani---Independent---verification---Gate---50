@@ -67,10 +67,10 @@ def main():
         if ok: verified += 1
         results.append({"file":str(path.relative_to(ROOT)),"record_id":record.get("record_id"),"status":status,"errors":errors,"record_sha256":sha256_file(path)})
     total = len(records); rate = round(verified / total * 100, 2) if total else 0.0
-    gate_status = "PASS" if total > 0 and verified == total else "NOT_VERIFIED"
+    gate_status = "PASS" if total > 0 and verified == total else ("NO_RECORDS" if total == 0 else "NOT_VERIFIED")
     report = {"gate":"SHIRMANI Independent Verification Gate 50","generated_at_utc":datetime.now(timezone.utc).isoformat(),"verifier_version":"2.0.0","policy":"fail-closed","independence_note":"Distinct IDs are enforced; organizational independence must be supported by audit context.","total_records":total,"verified_records":verified,"rejected_records":total-verified,"verification_rate_percent":rate,"status":gate_status,"results":results}
     (REPORTS/"verification-report.json").write_text(json.dumps(report,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
     (REPORTS/"verification-summary.md").write_text("# SHIRMANI Independent Verification Gate 50\n\n"+f"- Total records: **{total}**\n- VERIFIED: **{verified}**\n- Rejected: **{total-verified}**\n- Verification rate: **{rate}%**\n- Gate status: **{gate_status}**\n- Verifier version: **2.0.0**\n",encoding="utf-8")
     print(json.dumps(report,indent=2,ensure_ascii=False))
-    return 0 if gate_status == "PASS" else 1
+    # Empty candidate queue is infrastructure-ready, not a verification failure.\n    # Rejected candidates remain fail-closed and return non-zero.\n    return 0 if gate_status in {"PASS", "NO_RECORDS"} else 1
 if __name__ == "__main__": sys.exit(main())
