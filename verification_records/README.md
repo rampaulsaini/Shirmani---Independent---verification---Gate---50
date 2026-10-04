@@ -1,6 +1,6 @@
 # Verification records
 
-Put one JSON record per independent verification candidate in this directory.
+Put one `*.record.json` file per independent verification candidate in this directory. Files that do not end in `.record.json` are examples/documentation and are not treated as verification candidates.
 
 The gate is deliberately **fail-closed**. An upstream workflow completing successfully does not itself establish independent verification.
 
