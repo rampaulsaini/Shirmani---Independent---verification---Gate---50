@@ -2,56 +2,46 @@
 
 ## Purpose
 
-This repository is the **independent verification boundary** for the SHIRMANI research automation system.
+This repository is the independent verification boundary for the SHIRMANI research automation system.
 
-The gate deliberately separates:
+The gate separates:
 
-**automation activity → evidence → reproducibility → independent verification → VERIFIED status**
+automation activity -> evidence -> reproducibility -> independent verification -> VERIFIED status
 
-A successful upstream workflow is **not** itself a VERIFIED result.
+A successful upstream workflow is not itself a VERIFIED result.
 
-## Gate principles
+## Fail-closed verification contract
 
-1. **Fail-closed** — missing or contradictory evidence cannot pass.
-2. **Independence** — producer and verifier identities must differ.
-3. **Evidence threshold** — at least two evidence items are required.
-4. **Reproducibility** — method, environment and result must be recorded.
-5. **Integrity** — the source under review is represented by SHA-256.
-6. **Explicit decision** — PASS, FAIL or ABSTAIN is recorded.
-7. **Auditable output** — every run emits a machine-readable report and a human-readable summary.
-8. **No false progress** — an empty verification set is NOT_VERIFIED, not 100%.
+A record can become VERIFIED only when all mandatory conditions pass:
+
+1. producer_id and verifier_id are distinct.
+2. source_ref identifies what is being verified.
+3. source_hash_sha256 is a valid SHA-256 digest.
+4. At least two distinct evidence items exist.
+5. Every evidence item has kind, ref, and a valid SHA-256 digest.
+6. Reproduction records method, environment, and result.
+7. reproduction.result is exactly PASS.
+8. decision is exactly PASS.
+9. The record is valid JSON.
+
+FAIL and ABSTAIN are never counted as VERIFIED.
+
+The gate enforces distinct identifiers and deterministic checks. It cannot prove organizational independence merely from strings; that must be supported by audit context.
 
 ## Continuous operation
 
-The GitHub Actions gate runs on:
-- push to `main`
-- manual dispatch
-- a five-minute schedule
-
-The workflow uses read-only repository permissions for the verification job.
+GitHub Actions runs on push to main, manual dispatch, and a five-minute schedule. The verification job uses read-only repository permissions.
 
 ## Current state
 
-The infrastructure is installed. The repository intentionally begins with a rejected example record so that the gate demonstrates fail-closed behavior.
+The repository intentionally starts with a rejected example record. Therefore the honest current status remains: infrastructure ready is not independent verification complete.
 
-**Infrastructure ready ≠ independent verification complete.**
+## Regression tests
 
-The next legitimate progress comes from adding real verification records whose producer and verifier are genuinely independent and whose evidence can be reproduced.
+Run: python verifier/test_verify.py
 
-## Target
+## Outputs
 
-Move from:
+Each execution publishes reports/verification-report.json and reports/verification-summary.md.
 
-`0 VERIFIED → independently verified records`
-
-toward the user's larger verification target, without counting scheduled runs as verification.
-
-## Output
-
-Each execution publishes:
-- `reports/verification-report.json`
-- `reports/verification-summary.md`
-
-The canonical verifier is:
-
-`verifier/verify.py`
+The canonical verifier is verifier/verify.py
