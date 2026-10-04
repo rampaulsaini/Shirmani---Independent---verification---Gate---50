@@ -81,3 +81,40 @@ python verifier/test_verify.py
 ## Design principle
 
 **Do not trust the claim. Verify the provenance.**
+
+
+## What is configured now
+
+The repository is structured as the independent verification boundary, not as a generator of VERIFIED claims.
+
+Configured components:
+
+- deterministic fail-closed verifier;
+- regression tests;
+- canonical verification-record JSON schema;
+- explicit independent-verification protocol;
+- five-minute scheduled gate;
+- push and manual-dispatch triggers;
+- persisted verification reports;
+- Pages artifact containing the report, protocol, and schema;
+- downloadable audit report artifact.
+
+### Current evidence state
+
+**0 VERIFIED / 0 candidates**
+
+This is intentional. No synthetic or self-attested records are created merely to increase the count.
+
+### What remains outside repository-file control
+
+GitHub Pages must be enabled at the repository level by an authorized administrator if the deployment service is disabled. The workflow is already configured to deploy through GitHub Pages.
+
+### Next real milestone
+
+The next meaningful progress is not adding more workflow names. It is feeding the gate real upstream candidate packets containing immutable source references, evidence hashes, reproducibility data, and a defensible independent-audit basis.
+
+Then the gate can move records through:
+
+`candidate → evidence → reproduction → independent audit → VERIFIED`
+
+The target remains **50 VERIFIED records**, with no inflation of the count.
