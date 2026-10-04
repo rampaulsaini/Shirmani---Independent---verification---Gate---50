@@ -59,9 +59,9 @@ GitHub Actions is configured for:
 
 ## Deployment note
 
-The workflow is fully Pages-deployment-ready, but GitHub's repository-level Pages service must be enabled once in **Settings → Pages → Source: GitHub Actions**. The connected GitHub automation available to this session can modify repository files and workflows but does not expose the administrative Pages-enable mutation.
+The repository-level GitHub Pages service is now enabled and the deployment path is operational. The successful run #19 on 2026-10-04 completed both the verification job and the separate Pages deploy job.
 
-The deployment failure observed on 2026-10-04 was a GitHub Pages HTTP 404 at deployment creation, while the verification job itself passed.
+The earlier HTTP 404 was a transient pre-enablement state and is no longer the current repository state. Deployment is considered operational only when the deploy job itself succeeds.
 
 ## Outputs
 
@@ -105,9 +105,11 @@ Configured components:
 
 This is intentional. No synthetic or self-attested records are created merely to increase the count.
 
-### What remains outside repository-file control
+### Current deployment state
 
-GitHub Pages must be enabled at the repository level by an authorized administrator if the deployment service is disabled. The workflow is already configured to deploy through GitHub Pages.
+**GitHub Pages: ENABLED / deployment job: SUCCESS**
+
+The workflow is already configured to build the dashboard, upload the Pages artifact, and deploy it. The latest successful run confirmed the full path end-to-end.
 
 ### Next real milestone
 
