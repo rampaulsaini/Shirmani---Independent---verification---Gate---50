@@ -127,9 +127,24 @@ def main() -> int:
     total = len(records)
     rate = round(verified / total * 100, 2) if total else 0.0
     gate_status = "PASS" if total > 0 and verified == total else ("NO_RECORDS" if total == 0 else "NOT_VERIFIED")
+    previous = {}
+    previous_path = REPORTS / "verification-report.json"
+    if previous_path.exists():
+        try:
+            previous = json.loads(previous_path.read_text(encoding="utf-8"))
+        except Exception:
+            previous = {}
+
     report = {
         "gate":"SHIRMANI Independent Verification Gate 50",
-        "generated_at_utc":datetime.now(timezone.utc).isoformat(),
+        "generated_at_utc": previous.get("generated_at_utc") if (
+            previous.get("total_records") == total
+            and previous.get("verified_records") == verified
+            and previous.get("rejected_records") == total - verified
+            and previous.get("verification_rate_percent") == rate
+            and previous.get("status") == gate_status
+            and previous.get("results") == results
+        ) else datetime.now(timezone.utc).isoformat(),
         "verifier_version":"2.1.0",
         "policy":"fail-closed",
         "target_verified_records":50,
