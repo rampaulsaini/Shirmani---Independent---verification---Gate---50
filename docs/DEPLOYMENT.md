@@ -6,28 +6,31 @@ The repository should expose the verification dashboard through GitHub Pages and
 
 The workflow builds a Pages artifact and invokes actions/deploy-pages@v4.
 
-## One-time GitHub repository setting
+## Repository-level Pages setting
 
-Enable:
+**Current state: ENABLED.**
 
-**Repository → Settings → Pages → Build and deployment → Source: GitHub Actions**
-
-This is a repository administration setting. The connected GitHub tool available to this session can write repository content and workflows but does not expose the administrative mutation required to enable Pages itself.
+The repository is configured to use **GitHub Actions** as the Pages deployment source.
 
 ## Verified diagnostic
 
-On 2026-10-04 the verification job completed successfully, including:
+On 2026-10-04, workflow run **#19** completed the complete deployment path successfully:
 
 - regression tests;
 - deterministic verifier;
 - report validation;
+- repository-structure validation;
+- report persistence;
 - site build;
 - Pages artifact upload;
-- audit artifact upload.
+- audit artifact upload;
+- GitHub Pages deployment.
 
-The separate deploy job failed with HTTP 404 when creating the Pages deployment. GitHub's own error message stated that GitHub Pages must be enabled.
+The earlier HTTP 404 was the pre-enablement state. It is retained only as historical diagnostic context, not as the current operational status.
 
-Once the one-time Pages setting is enabled, the existing workflow is designed to deploy the generated dashboard automatically on its next successful run.
+## Operational rule
+
+A deployment is considered operational only when the `deploy` job itself completes successfully. Artifact upload alone is not treated as deployment success.
 
 ## Integrity rule
 
