@@ -40,6 +40,9 @@ jobs:
           test -s reports/verification-report.json
           test -s reports/verification-summary.md
 
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
       - name: Build Pages bundle
         run: |
           rm -rf _site
