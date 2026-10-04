@@ -1,19 +1,15 @@
 name: SHIRMANI Independent Verification Gate 50
-
 on:
   workflow_dispatch:
   schedule:
     - cron: "*/5 * * * *"
   push:
     branches: [main]
-
 permissions:
   contents: read
-
 concurrency:
   group: shirmani-independent-verification-gate-50
   cancel-in-progress: false
-
 jobs:
   verify:
     name: Fail-Closed Independent Verification
@@ -24,6 +20,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+      - name: Run verifier regression tests
+        run: python verifier/test_verify.py
       - name: Run deterministic verification gate
         run: python verifier/verify.py
       - name: Publish verification report
