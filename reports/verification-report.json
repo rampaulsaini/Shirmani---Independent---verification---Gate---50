@@ -1,0 +1,13 @@
+{
+  "gate": "SHIRMANI Independent Verification Gate 50",
+  "generated_at_utc": "2026-10-04T16:24:41.915989+00:00",
+  "verifier_version": "2.0.0",
+  "policy": "fail-closed",
+  "independence_note": "Distinct IDs are enforced; organizational independence must be supported by audit context.",
+  "total_records": 0,
+  "verified_records": 0,
+  "rejected_records": 0,
+  "verification_rate_percent": 0.0,
+  "status": "NO_RECORDS",
+  "results": []
+}
