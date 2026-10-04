@@ -1,0 +1,78 @@
+name: SHIRMANI Independent Verification Gate 50
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: independent-verification-gate
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify records (fail-closed)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Regression tests
+        run: python verifier/test_verify.py
+
+      - name: Verify repository records
+        run: python verifier/verify.py
+
+      - name: Validate report is present
+        run: |
+          test -s reports/verification-report.json
+          test -s reports/verification-summary.md
+
+      - name: Build Pages bundle
+        run: |
+          rm -rf _site
+          mkdir -p _site/reports _site/protocol _site/schemas
+          cp docs/index.html _site/index.html
+          cp reports/verification-report.json _site/reports/verification-report.json
+          cp reports/verification-summary.md _site/reports/verification-summary.md
+          cp docs/INDEPENDENT_VERIFICATION_PROTOCOL.md _site/protocol/INDEPENDENT_VERIFICATION_PROTOCOL.md
+          cp schemas/verification-record.schema.json _site/schemas/verification-record.schema.json
+          printf '%s\n' '<meta name="robots" content="noindex">' > _site/robots.txt
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Upload audit report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate-50-verification-report
+          path: |
+            reports/verification-report.json
+            reports/verification-summary.md
+          if-no-files-found: error
+
+  deploy:
+    name: Deploy Pages
+    needs: verify
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
