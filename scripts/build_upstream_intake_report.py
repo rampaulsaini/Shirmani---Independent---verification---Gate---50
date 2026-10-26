@@ -14,7 +14,7 @@ def load(name):
 
 progress = load("upstream-progress.json")
 promotion = load("upstream-promotion-qc.json")
-local = load("verification-report.json")
+local = json.loads((REPORTS / "verification-report.json").read_text(encoding="utf-8"))
 
 auth = progress["authoritative"]
 inst = progress["instantiated_review_layer"]
