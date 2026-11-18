@@ -1,6 +1,8 @@
 name: SHIRMANI Upstream Independent-Verification Intake
 
 on:
+  pull_request:
+    branches: [main]
   workflow_dispatch:
   schedule:
     - cron: "*/5 * * * *"
@@ -25,6 +27,25 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Run local verifier regression tests
+        run: python verifier/test_verify.py
+
+      - name: Refresh local Gate-50 verification report
+        run: |
+          python - <<'PY'
+          import importlib.util
+          from pathlib import Path
+
+          path = Path("verifier/verify.py")
+          spec = importlib.util.spec_from_file_location("gate_verifier", path)
+          module = importlib.util.module_from_spec(spec)
+          assert spec.loader
+          spec.loader.exec_module(module)
+          status = module.main()
+          print(f"Local fail-closed verifier exit status: {status}; report retained for observational intake.")
+          PY
+          python verifier/validate_report.py
+
       - name: Fetch upstream verification state
         env:
           UPSTREAM_RAW: https://raw.githubusercontent.com/rampaulsaini/Shirmani-Research-Institute-Shirmani-Research-Institute-/main
@@ -33,8 +54,11 @@ jobs:
           mkdir -p incoming
           curl --fail --silent --show-error --location "$UPSTREAM_RAW/generated/independent-verification-progress.json" -o incoming/upstream-progress.json
           curl --fail --silent --show-error --location "$UPSTREAM_RAW/generated/VERIFICATION-PROMOTION-QC.json" -o incoming/upstream-promotion-qc.json
-          curl --fail --silent --show-error --location "$UPSTREAM_RAW/generated/independent-verification-queue.jsonl" -o incoming/upstream-queue.jsonl
-          curl --fail --silent --show-error --location "$UPSTREAM_RAW/generated/independent-verification-registry.jsonl" -o incoming/upstream-registry.jsonl
+          curl --fail --silent --show-error --location "$UPSTREAM_RAW/generated/independent-verification-queue.jsonl.gz" -o incoming/upstream-queue.jsonl.gz
+          curl --fail --silent --show-error --location "$UPSTREAM_RAW/generated/independent-verification-registry.jsonl.gz" -o incoming/upstream-registry.jsonl.gz
+          gzip -t incoming/upstream-queue.jsonl.gz incoming/upstream-registry.jsonl.gz
+          gzip -dc incoming/upstream-queue.jsonl.gz > incoming/upstream-queue.jsonl
+          gzip -dc incoming/upstream-registry.jsonl.gz > incoming/upstream-registry.jsonl
 
       - name: Build fail-closed intake report
         run: python scripts/build_upstream_intake_report.py
