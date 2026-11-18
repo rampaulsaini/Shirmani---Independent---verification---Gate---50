@@ -27,6 +27,25 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Run local verifier regression tests
+        run: python verifier/test_verify.py
+
+      - name: Refresh local Gate-50 verification report
+        run: |
+          python - <<'PY'
+          import importlib.util
+          from pathlib import Path
+
+          path = Path("verifier/verify.py")
+          spec = importlib.util.spec_from_file_location("gate_verifier", path)
+          module = importlib.util.module_from_spec(spec)
+          assert spec.loader
+          spec.loader.exec_module(module)
+          status = module.main()
+          print(f"Local fail-closed verifier exit status: {status}; report retained for observational intake.")
+          PY
+          python verifier/validate_report.py
+
       - name: Fetch upstream verification state
         env:
           UPSTREAM_RAW: https://raw.githubusercontent.com/rampaulsaini/Shirmani-Research-Institute-Shirmani-Research-Institute-/main
