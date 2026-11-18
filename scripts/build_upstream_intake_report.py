@@ -9,12 +9,12 @@ INCOMING = ROOT / "incoming"
 REPORTS = ROOT / "reports"
 REPORTS.mkdir(exist_ok=True)
 
-def load(name):
+def load_incoming(name):
     return json.loads((INCOMING / name).read_text(encoding="utf-8"))
 
-progress = load("upstream-progress.json")
-promotion = load("upstream-promotion-qc.json")
-local = load("verification-report.json")
+progress = load_incoming("upstream-progress.json")
+promotion = load_incoming("upstream-promotion-qc.json")
+local = json.loads((REPORTS / "verification-report.json").read_text(encoding="utf-8"))
 
 auth = progress["authoritative"]
 inst = progress["instantiated_review_layer"]
